@@ -17,11 +17,8 @@
 /* USER CODE END Header_StartOverloadTask */
 void StartOverloadTask(void const * argument)
 {
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    vTaskDelay(1);
   }
-  /* USER CODE END 5 */
 }

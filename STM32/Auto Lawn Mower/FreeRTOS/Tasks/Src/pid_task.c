@@ -16,11 +16,8 @@
 */
 void StartPidTask(void const * argument)
 {
-  /* USER CODE BEGIN StartPidTask */
-  /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    vTaskDelay(1);
   }
-  /* USER CODE END StartPidTask */
 }

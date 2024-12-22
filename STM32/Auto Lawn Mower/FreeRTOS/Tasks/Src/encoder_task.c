@@ -16,11 +16,8 @@
 */
 void StartEncoderTask(void const * argument)
 {
-  /* USER CODE BEGIN StartEncoderTask */
-  /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    vTaskDelay(1);
   }
-  /* USER CODE END StartEncoderTask */
 }

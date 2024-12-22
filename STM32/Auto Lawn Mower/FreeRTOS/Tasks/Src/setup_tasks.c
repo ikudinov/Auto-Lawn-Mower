@@ -14,6 +14,7 @@
 #include "overload_task.h"
 #include "pid_task.h"
 #include "status_task.h"
+#include "rc_task.h"
 
 
 osThreadId overloadTaskHandle;
@@ -22,6 +23,7 @@ osThreadId pidTaskHandle;
 osThreadId gpsTaskHandle;
 osThreadId sendStatusTaskHandle;
 osThreadId opiControlTaskHandle;
+osThreadId rcTaskHandle;
 
 
 void vSetupAllTasks()
@@ -43,4 +45,7 @@ void vSetupAllTasks()
 
 	osThreadDef(opiControlTask, StartOpiControlTask, osPriorityIdle, 0, 128);
 	opiControlTaskHandle = osThreadCreate(osThread(opiControlTask), NULL);
+
+	osThreadDef(rcTask, StartRcTask, osPriorityIdle, 0, 128);
+	rcTaskHandle = osThreadCreate(osThread(rcTask), NULL);
 }
