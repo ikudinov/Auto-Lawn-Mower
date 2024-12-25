@@ -4,76 +4,110 @@
  *  Created on: Dec 13, 2024
  *      Author: ivankudinov
  */
-#include "stdbool.h"
 #include "math.h"
 #include "stdio.h"
-
 #include "cmsis_os.h"
+
 #include "rc_task.h"
+#include "setup_queues.h"
 
-typedef enum {
-    PIN_STATE_LOW = -1,
-    PIN_STATE_NO_CHANGE = 0,
-    PIN_STATE_HIGH = 1,
-} PinState;
 
-PinState leftMotorPinState = PIN_STATE_LOW;
-PinState rightMotorPinState = PIN_STATE_LOW;
-PinState trimmerMotorPinState = PIN_STATE_LOW;
+typedef struct {
+    GPIO_PinState pinState;
+    uint32_t highIntTs; // Cycle time last interrupt low -> high
+    uint32_t pwmImpulseCycles; // Cycle period of impulse
+} RcChannel;
 
-uint32_t leftMotorHighIntTs = 0;
-uint32_t rightMotorHighIntTs = 0;
-uint32_t trimmerMotorHighIntTs = 0;
+RcChannel leftMotor = { GPIO_PIN_RESET, 0, 0 };
+RcChannel rightMotor = { GPIO_PIN_RESET, 0, 0 };
+RcChannel trimmerMotor = { GPIO_PIN_RESET, 0, 0 };
 
-uint8_t leftMotorPwmPercent = 0;
-uint8_t rightMotorPwmPercent = 0;
-uint8_t trimmerMotorPwmPercent = 0;
 
 /**
  * @brief  Calc pin state change
  * @param  argument: Not used
  * @retval None
  */
-PinState GetPinInterruptValue(uint16_t pin, PinState prevPinState) {
-    if (__HAL_GPIO_EXTI_GET_IT(pin) == RESET) {
-        return PIN_STATE_NO_CHANGE;
-    }
+void HandleInterrupt(RcChannel * rcChannel, uint16_t pinNum, uint32_t currTs) {
+    if (__HAL_GPIO_EXTI_GET_IT(pinNum) == RESET)
+        return;
 
-    __HAL_GPIO_EXTI_CLEAR_IT(pin);
+    __HAL_GPIO_EXTI_CLEAR_IT(pinNum);
 
-    bool bPinState = HAL_GPIO_ReadPin(MOTOR_PORT, pin);
+    GPIO_PinState pinState = HAL_GPIO_ReadPin(MOTOR_PORT, pinNum);
 
     // Low -> High
-    if (prevPinState == PIN_STATE_LOW && bPinState == GPIO_PIN_SET) {
-        return PIN_STATE_HIGH;
+    if (rcChannel->pinState == GPIO_PIN_RESET && pinState == GPIO_PIN_SET) {
+        rcChannel->highIntTs = currTs;
+        rcChannel->pwmImpulseCycles = 0;
     }
 
     // High -> Low
-    if (prevPinState == PIN_STATE_HIGH && bPinState == GPIO_PIN_RESET) {
-        return PIN_STATE_LOW;
+    if (rcChannel->pinState == GPIO_PIN_SET && pinState == GPIO_PIN_RESET) {
+        rcChannel->pwmImpulseCycles = rcChannel->highIntTs >= currTs ? 0 : currTs - rcChannel->highIntTs;
     }
 
-    return PIN_STATE_NO_CHANGE;
+    rcChannel->pinState = pinState;
 }
 
 /**
  * @brief  PWM value calculation
- * @param  argument: Not used
+ * @param  argument: RC channel info
  * @retval None
  */
-uint8_t calcPwmPercent(uint32_t highTs, uint32_t lowTs) {
-    if (highTs >= lowTs)
-        return 0;
+MotorPwm CalcPwmPercent(RcChannel rcChannel) {
+    int64_t oneMsCycles;
+    double pwmPercent;
+    MotorPwm motorPwm = { STOP, 0 };
 
-    int64_t diffTicks = lowTs - highTs;
-    int64_t oneMsTicks = SystemCoreClock / 1000;
+    if (!rcChannel.pwmImpulseCycles)
+        return motorPwm; // STOP Dir
 
-    if (diffTicks < oneMsTicks)
-        return 0;
+    oneMsCycles = SystemCoreClock / 1000;
 
-    int64_t pwmPercent = (diffTicks - oneMsTicks) * 100 / oneMsTicks;
+    // Too short impulse
+    if (rcChannel.pwmImpulseCycles < oneMsCycles / 2)
+        return motorPwm; // STOP Dir
 
-    return fmin(100, fabs(pwmPercent));
+    // Impulse shorter than 1ms but not too short
+    if (rcChannel.pwmImpulseCycles < oneMsCycles) {
+        motorPwm.direction = BACKWARD;
+        motorPwm.percent = 100;
+        return motorPwm;
+    }
+
+    pwmPercent = (rcChannel.pwmImpulseCycles - oneMsCycles) * 100 / oneMsCycles;
+    pwmPercent = fmin(100, fabs(pwmPercent)); // limit 0 - 100
+
+    // PWM 48-52% is zero speed
+    if (pwmPercent >= 45 && pwmPercent <= 55) {
+        return motorPwm; // STOP Dir
+    }
+
+    // Backward
+    if (pwmPercent < 45) {
+        motorPwm.direction = BACKWARD;
+        motorPwm.percent = (50.0 - pwmPercent) * 2.0;
+    }
+
+    // Backward
+    if (pwmPercent > 55) {
+        motorPwm.direction = FORWARD;
+        motorPwm.percent = (pwmPercent - 50.0) * 2.0;
+    }
+
+    return motorPwm;
+}
+
+/**
+ * @brief  Calculation on/off channel
+ * @param  argument: RC channel info
+ * @retval None
+ */
+uint8_t CalcOnOff(RcChannel rcChannel) {
+    int64_t enableTresholdCycles = SystemCoreClock * 17 / 10000;
+
+    return rcChannel.pwmImpulseCycles >= enableTresholdCycles;
 }
 
 /**
@@ -82,40 +116,11 @@ uint8_t calcPwmPercent(uint32_t highTs, uint32_t lowTs) {
  * @retval None
  */
 void EXTI9_5_IRQHandler(void) {
-    uint32_t ts = DWT->CYCCNT;
+    const uint32_t ts = DWT->CYCCNT;
 
-    /* Left motor */
-    PinState leftMotorNewState = GetPinInterruptValue(MOTOR_LEFT_PIN, leftMotorPinState);
-    if (leftMotorNewState == PIN_STATE_HIGH) {
-        leftMotorHighIntTs = ts;
-        return;
-    }
-    if (leftMotorNewState == PIN_STATE_LOW) {
-        leftMotorPwmPercent = calcPwmPercent(leftMotorHighIntTs, ts);
-        return;
-    }
-
-    /* Right motor */
-    PinState rightMotorNewState = GetPinInterruptValue(MOTOR_RIGHT_PIN, rightMotorPinState);
-    if (rightMotorNewState == PIN_STATE_HIGH) {
-        rightMotorHighIntTs = ts;
-        return;
-    }
-    if (rightMotorNewState == PIN_STATE_LOW) {
-        rightMotorPwmPercent = calcPwmPercent(rightMotorHighIntTs, ts);
-        return;
-    }
-
-    /* Trimmer motor */
-    PinState trimmerMotorNewState = GetPinInterruptValue(MOTOR_TRIMMER_PIN, trimmerMotorPinState);
-    if (trimmerMotorNewState == PIN_STATE_HIGH) {
-        trimmerMotorHighIntTs = ts;
-        return;
-    }
-    if (trimmerMotorNewState == PIN_STATE_LOW) {
-        trimmerMotorPwmPercent = calcPwmPercent(trimmerMotorHighIntTs, ts);
-        return;
-    }
+    HandleInterrupt(&leftMotor, MOTOR_LEFT_PIN, ts);
+    HandleInterrupt(&rightMotor, MOTOR_RIGHT_PIN, ts);
+    HandleInterrupt(&trimmerMotor, MOTOR_TRIMMER_PIN, ts);
 }
 
 /**
@@ -124,11 +129,20 @@ void EXTI9_5_IRQHandler(void) {
  * @retval None
  */
 void StartRcTask(void const *argument) {
-    const TickType_t xIntervalMs = 500;
+    const TickType_t xIntervalMs = 100;
     TickType_t xLastWakeTime = xTaskGetTickCount();
+    RcControlMessage *message;
 
     for (;;) {
         vTaskDelayUntil(&xLastWakeTime, xIntervalMs);
-        printf("left = %u", leftMotorPwmPercent);
+
+        message = osMailAlloc(rcControlQueueHandle, xIntervalMs);
+        message->trimmerMotor = SET;
+        message->leftMotor = CalcPwmPercent(leftMotor);
+        message->rightMotor = CalcPwmPercent(rightMotor);
+
+        if (osMailPut(rcControlQueueHandle, message) != osOK) {
+            osMailFree(rcControlQueueHandle, message);
+        }
     }
 }

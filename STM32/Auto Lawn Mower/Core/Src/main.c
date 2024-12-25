@@ -71,6 +71,15 @@ int main(void) {
 }
 
 /**
+ * @brief SWO debug printf override
+ */
+int __io_putchar(int ch) {
+  ITM_SendChar(ch);
+  return ch;
+}
+
+
+/**
  * @brief System Clock Configuration
  * @retval None
  */
@@ -222,6 +231,11 @@ static void MX_TIM1_Init(void) {
     }
 
     HAL_TIM_MspPostInit(&htim1);
+
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
 }
 
 /**
@@ -331,16 +345,19 @@ static void MX_GPIO_Init(void) {
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* EXTI interrupt init*/
-    HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 15, 15);
     HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
-    HAL_NVIC_SetPriority(EXTI1_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(EXTI1_IRQn, 15, 15);
     HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 
-    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 15, 15);
     HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 }
 
+/**
+ *
+ */
 static void DWT_Init(void) {
     /* Restart TRC */
     CoreDebug->DEMCR &= ~CoreDebug_DEMCR_TRCENA_Msk;

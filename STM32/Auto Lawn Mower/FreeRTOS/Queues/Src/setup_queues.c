@@ -5,18 +5,14 @@
  *      Author: ivankudinov
  */
 
-#include "setup_queues.h"
 #include "cmsis_os.h"
+#include "setup_queues.h"
+#include "rc_task.h"
 
-osMessageQId encoderQueueHandle;
-osMessageQId motorCurrQueueHandle;
-
+osMailQId rcControlQueueHandle;
 
 void vSetupAllQueues()
 {
-	osMessageQDef(encoderQueue, 4, uint16_t);
-	encoderQueueHandle = osMessageCreate(osMessageQ(encoderQueue), NULL);
-
-	osMessageQDef(motorCurrQueue, 4, uint16_t);
-	motorCurrQueueHandle = osMessageCreate(osMessageQ(motorCurrQueue), NULL);
+	osMailQDef(rcControlQueue, 2, RcControlMessage);
+	rcControlQueueHandle = osMailCreate(osMailQ(rcControlQueue), NULL);
 }
