@@ -16,11 +16,8 @@
 */
 void StartOpiControlTask(void const * argument)
 {
-  /* USER CODE BEGIN StartOpiControlTask */
-  /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	vTaskDelay(1);
   }
-  /* USER CODE END StartOpiControlTask */
 }

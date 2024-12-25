@@ -8,6 +8,13 @@
 #ifndef QUEUES_INC_SETUP_QUEUES_H_
 #define QUEUES_INC_SETUP_QUEUES_H_
 
+#include "cmsis_os.h"
+
+#define QUEUE_SEND_TIMEOUT 200
+
+extern osMailQId rcControlQueueHandle;
+extern osMailQId encoderQueueHandle;
+extern osMailQId motorCurrQueueHandle;
 
 void vSetupAllQueues();
 

@@ -4,16 +4,16 @@
  *  Created on: Dec 13, 2024
  *      Author: ivankudinov
  */
-#include "setup_tasks.h"
-
 #include "cmsis_os.h"
 
+#include "setup_tasks.h"
 #include "encoder_task.h"
 #include "gps_task.h"
 #include "opi_control_task.h"
 #include "overload_task.h"
 #include "pid_task.h"
 #include "status_task.h"
+#include "rc_task.h"
 
 
 osThreadId overloadTaskHandle;
@@ -22,6 +22,7 @@ osThreadId pidTaskHandle;
 osThreadId gpsTaskHandle;
 osThreadId sendStatusTaskHandle;
 osThreadId opiControlTaskHandle;
+osThreadId rcTaskHandle;
 
 
 void vSetupAllTasks()
@@ -41,6 +42,9 @@ void vSetupAllTasks()
 	osThreadDef(sendStatusTask, StartSendStatusTask, osPriorityNormal, 0, 128);
 	sendStatusTaskHandle = osThreadCreate(osThread(sendStatusTask), NULL);
 
-	osThreadDef(opiControlTask, StartOpiControlTask, osPriorityIdle, 0, 128);
+	osThreadDef(opiControlTask, StartOpiControlTask, osPriorityNormal, 0, 128);
 	opiControlTaskHandle = osThreadCreate(osThread(opiControlTask), NULL);
+
+	osThreadDef(rcTask, StartRcTask, osPriorityNormal, 0, 256);
+	rcTaskHandle = osThreadCreate(osThread(rcTask), NULL);
 }

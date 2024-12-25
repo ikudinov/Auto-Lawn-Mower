@@ -14,14 +14,10 @@
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartSendStatusTask */
 void StartSendStatusTask(void const * argument)
 {
-  /* USER CODE BEGIN StartSendStatusTask */
-  /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	vTaskDelay(1);
   }
-  /* USER CODE END StartSendStatusTask */
 }
