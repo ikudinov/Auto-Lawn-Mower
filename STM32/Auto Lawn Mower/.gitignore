@@ -3,6 +3,7 @@
 
 # Metadata
 .metadata/
+SWV_export/
 
 # Build
 Debug/
