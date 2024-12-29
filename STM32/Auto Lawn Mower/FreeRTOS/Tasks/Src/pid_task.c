@@ -106,7 +106,7 @@ void HandleRcControlMessage(osEvent event) {
  * @retval None
  */
 void StartPidTask(void const *argument) {
-    const TickType_t xIntervalMs = 50;
+    const TickType_t xIntervalMs = 25;
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     for (;;) {
