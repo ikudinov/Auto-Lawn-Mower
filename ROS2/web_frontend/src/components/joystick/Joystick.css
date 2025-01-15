@@ -1,0 +1,66 @@
+:root {
+  --joystick-size: 300px;
+  --joystick-pointer-size: 60px;
+
+  --joystick-circle-size: calc(var(--joystick-size) - 2px);
+  --joystick-circle-line-pos: calc(var(--joystick-size) / 2 + 10px);
+  --joystick-pointer-pos: calc(var(--joystick-size) / 2 - var(--joystick-pointer-size) / 2 + 1px);
+}
+
+.joystick {
+  position: relative;
+  padding-bottom: 20px;
+  padding-right: 20px;
+}
+
+.joystick__circle {
+  position: relative;
+  left: 10px;
+  top: 10px;
+  background-color: var(--control-panel-blue-bg);
+  width: var(--joystick-circle-size);
+  min-width: var(--joystick-circle-size);
+  height: var(--joystick-circle-size);
+  min-height: var(--joystick-circle-size);
+  border-radius: 50%;
+  box-shadow: 0px 0px 20px var(--control-panel-gray-border) inset;
+}
+
+.joystick::after, .joystick::before {
+  content: "";
+  position: absolute;
+  border: 0;
+  z-index: 1;
+}
+
+.joystick::after {
+  top: 0px;
+  left: var(--joystick-circle-line-pos);
+  width: 0px;
+  height: 100%;
+  border-left: 2px var(--control-panel-gray-border) dashed;
+}
+
+.joystick::before {
+  top: var(--joystick-circle-line-pos);
+  left: 0px;
+  width: 100%;
+  height: 0px;
+  border-top: 2px var(--control-panel-gray-border) dashed;
+}
+
+.joystick__pointer {
+  position: absolute;
+  bottom: var(--joystick-pointer-pos);
+  right: var(--joystick-pointer-pos);
+  width: var(--joystick-pointer-size);
+  min-width: var(--joystick-pointer-size);
+  height: var(--joystick-pointer-size);
+  min-height: var(--joystick-pointer-size);
+  transition: margin-bottom 50ms ease-in, margin-right 50ms ease-out;
+  background-color: var(--control-panel-blue-fg);
+  border: 6px #8badf5 solid;
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0px 0px 10px black;
+}

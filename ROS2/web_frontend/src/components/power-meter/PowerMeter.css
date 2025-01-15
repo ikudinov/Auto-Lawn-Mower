@@ -1,0 +1,50 @@
+:root {
+  --power-meter-bar-width: 50px;
+  --power-meter-bar-height: 400px;
+}
+
+.power-meter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 16px;
+  width: 50px;
+}
+
+.power-meter__label {
+  margin-bottom: 4px;
+}
+
+.power-meter__bar {
+  position: relative;
+  width: var(--power-meter-bar-width);
+  padding: 0;
+  margin: 0;
+  height: var(--power-meter-bar-height);
+  background-color: var(--control-panel-blue-bg);
+  z-index: -1;
+  box-shadow: 0px 0px 10px var(--control-panel-gray-border) inset;
+}
+
+.power-meter__bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(var(--power-meter-bar-height) / 2 - 1px);
+  height: 2px;
+  border-top: 2px var(--control-panel-gray-border) dashed;
+  width: var(--power-meter-bar-width);
+}
+
+.power-meter__bar-line {
+  position: relative;
+  width: var(--power-meter-bar-width);
+  background-color: var(--control-panel-blue-fg);
+  margin-top: calc(var(--power-meter-bar-height) / 2);
+  transition: height 50ms ease-in;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
