@@ -1,0 +1,29 @@
+:root {
+  --control-panel-blue-fg: #4b74cd;
+  --control-panel-blue-bg: #e3ebff;
+  --control-panel-gray-border: #aaa;
+}
+
+.control-panel {
+  padding: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
+.control-panel__joystick {
+  padding-top: 10px;
+}
+
+.control-panel__group {
+  display: flex;
+  flex-direction: row;
+  border: 1px #aaa solid;
+  margin: 0 40px 0 30px;
+  padding: 20px 30px 30px 30px;
+}
+
+.control-panel__group>*:first-child {
+  margin-right: 30px;
+}

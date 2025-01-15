@@ -1,0 +1,38 @@
+.App {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.control-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  min-width: 280px;
+  height: 100%;
+  background-color: #e3e7f1;
+}
+
+.control-button {
+  border: 0;
+  padding: 30px;
+  font-size: 24px;
+  width: 100%;
+  margin: 20px 0;
+  background-color: #a6b5d6;
+  color: #fff;
+  box-shadow: 0px 0px 20px var(--control-panel-gray-border);
+}
+
+.control-button--selected {
+  background-color: var(--control-panel-blue-fg);
+}
+
+.not-implemented {
+  width: 100%;
+  text-align: center;
+  font-size: 30px;
+}
