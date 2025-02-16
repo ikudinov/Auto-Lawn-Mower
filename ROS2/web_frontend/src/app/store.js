@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import { reducer, reducerPath, middleware } from '../features/control-panel/controlPanelApi';
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    [reducerPath]: reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(middleware),
 });

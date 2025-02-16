@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    # Serial configuration
+    serial_port_name: "/dev/ttyS0"
+    # serial_port_name: "/dev/cu.usbserial-110"
+    serial_port_baudrate: 115200
+    # Topics naming
+    topic_name_motors: "/stm32/motors"
+    # Web server
+    websocket_port: 4041
+    http_port: 4040

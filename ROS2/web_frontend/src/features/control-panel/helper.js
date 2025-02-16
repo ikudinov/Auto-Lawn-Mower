@@ -17,13 +17,17 @@ export const calcJoystickTop = (left, right) => {
 export const calcJoystickRight = (left, right) => {
   switch (true) {
     case left > 0 && right < 0:
-      return 100;
+      return left;
     case left < 0 && right > 0:
-      return -100;
-    case left > right:
+      return -right;
+    case left >= 0 && left > right:
       return Math.sqrt(left * left - right * right);
-    case left < right:
+    case right >= 0 && left < right:
       return -Math.sqrt(right * right - left * left);
+    case right < 0 && left < right:
+      return -Math.sqrt(left * left - right * right);
+    case left < 0 && left > right:
+      return Math.sqrt(right * right - left * left);
     default:
       return 0;
   }

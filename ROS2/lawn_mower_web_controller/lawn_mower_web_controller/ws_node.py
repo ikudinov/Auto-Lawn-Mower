@@ -4,17 +4,20 @@ from rclpy.node import Node
 import tornado.ioloop
 import tornado.httpserver
 import tornado.websocket
+from robot_interfaces.msg import Motors
 
 
 WEB_SERVER_PORT = 4041
+MOTORS_TOPIC = '/stm32/motors'
 
+ws_clients = set()
 
 class WsHandler(tornado.websocket.WebSocketHandler):
   def open(self, args):
-    print("WebSocket opened")
+    ws_clients.add(self)
 
   def on_close(self):
-    print("WebSocket closed")
+    ws_clients.remove(self)
 
   def on_message(self, message):
     print("WS message '%s'" % message)
@@ -29,46 +32,57 @@ class WsServer():
 
   def run(self, port):
     app = tornado.web.Application(
-        [(r'/(.*)', WsHandler)],
-        websocket_ping_interval=10,
-        websocket_ping_timeout=30,
+      [(r'/(.*)', WsHandler)],
+      websocket_ping_interval=10,
+      websocket_ping_timeout=30,
     )
     self.http_server = tornado.httpserver.HTTPServer(app)
     self.http_server.listen(port)
     print('WS server started at port=%s' % port)
 
   def spin(self, callback):
-    tornado.ioloop.PeriodicCallback(callback, 100).start()
+    tornado.ioloop.PeriodicCallback(callback, 10).start()
     tornado.ioloop.IOLoop.current().start()
 
 
 class WsNode(Node):
-    def __init__(self): 
-        super().__init__('ws_node')
+  def __init__(self): 
+    super().__init__('ws_node')
 
-        self.timer = self.create_timer(1, self.timer_callback)
+    self.motor_subscriber = self.create_subscription(
+      msg_type=Motors,
+      topic=MOTORS_TOPIC,
+      callback=self.motors_subscriber_callback,
+      qos_profile=1)
 
-    def timer_callback(self):
-        self.get_logger().info('Node started 3')
+    self.get_logger().info('WS Node started')
 
-    def spin_callback(self):
-      rclpy.spin_once(self)
+  def spin_callback(self):
+    rclpy.spin_once(self)
+
+  def motors_subscriber_callback(self, msg: Motors):
+    # self.get_logger().info(f"""Motor msg left={msg.left} right={msg.right} trimmer={msg.trimmer}  """)
+
+    json = f'{{"type":"motors","data":{{"left":{msg.left},"right":{msg.right},"trimmer":{str(msg.trimmer).lower()}}}}}'
+
+    for client in ws_clients:
+      client.write_message(json)
 
 
 def main(args=None):
-    try:
-      rclpy.init(args=args)
+  try:
+    rclpy.init(args=args)
 
-      wsServer = WsServer()
-      wsServer.run(WEB_SERVER_PORT)
+    wsServer = WsServer()
+    wsServer.run(WEB_SERVER_PORT)
 
-      node = WsNode()
-      wsServer.spin(node.spin_callback)
+    node = WsNode()
+    wsServer.spin(node.spin_callback)
 
-      rclpy.shutdown()
-    except (KeyboardInterrupt, ExternalShutdownException):
-        pass
+    rclpy.shutdown()
+  except (KeyboardInterrupt, ExternalShutdownException):
+    pass
 
 
 if __name__ == '__main__':
-    main()
+  main()

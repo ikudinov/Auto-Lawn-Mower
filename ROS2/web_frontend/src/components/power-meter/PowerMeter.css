@@ -42,7 +42,7 @@
   width: var(--power-meter-bar-width);
   background-color: var(--control-panel-blue-fg);
   margin-top: calc(var(--power-meter-bar-height) / 2);
-  transition: height 50ms ease-in;
+  transition: height 50ms ease-in, bottom 50ms ease-in;
   display: flex;
   align-items: center;
   justify-content: center;
