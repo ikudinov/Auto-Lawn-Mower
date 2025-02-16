@@ -5,17 +5,15 @@
  *      Author: ivankudinov
  */
 #include "cmsis_os.h"
-#include "stdbool.h"
 
 #include "pid_task.h"
-#include "tasks_common.h"
 #include "setup_queues.h"
 #include "rc_task.h"
 
 
 MotorPwm leftMotorControl = { STOP, 0 };
 MotorPwm rightMotorControl = { STOP, 0 };
-bool trimmerrMotorEnabled = false;
+bool trimmerMotorEnabled = false;
 
 
 /**
@@ -56,7 +54,7 @@ void WriteMotorsHAL() {
     }
 
     // Trimmer
-    TIM2->CCR1 = trimmerrMotorEnabled ? 65535 : 0;
+    TIM2->CCR1 = trimmerMotorEnabled ? 65535 : 0;
 }
 
 /**
@@ -88,8 +86,8 @@ void HandleRcControlMessage(osEvent event) {
         needWriteHal = true;
     }
 
-    if (trimmerrMotorEnabled != message->trimmerMotor) {
-        trimmerrMotorEnabled = message->trimmerMotor;
+    if (trimmerMotorEnabled != message->trimmerMotor) {
+        trimmerMotorEnabled = message->trimmerMotor;
         needWriteHal = true;
     }
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import ControlPanel from './components/control-panel/ControlPanel';
+import ControlPanel from './features/control-panel/ControlPanel';
 
 const FUNC = {
   MANUAL: 1,
@@ -29,7 +29,7 @@ function App() {
           АВТОМАТ
         </button>
       </div>
-      {func === FUNC.MANUAL && <ControlPanel leftPower={0} rightPower={0} trimmerEnabled={true} />}
+      {func === FUNC.MANUAL && <ControlPanel />}
       {func === FUNC.AUTO && (
         <div className='not-implemented'>Пока не реализовано</div>
       )}
