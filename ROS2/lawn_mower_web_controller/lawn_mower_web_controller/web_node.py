@@ -13,6 +13,9 @@ class WebServer():
   def get_html_dir(self):
     python_script_dir = path.dirname(path.realpath(__file__))
     package_dir = path.dirname(python_script_dir)
+
+    print('%s/resource/html' % package_dir)
+
     return '%s/resource/html' % package_dir
 
   def run(self, port):

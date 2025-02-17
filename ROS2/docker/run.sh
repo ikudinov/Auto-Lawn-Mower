@@ -1,9 +1,9 @@
-rm -rf ../build/
-rm -rf ../install/
+sudo rm -rf ../build/
+sudo rm -rf ../install/
 
 docker run -it \
   -v "${PWD}/../":/opt/auto-lawn-mower \
-  -v /dev/ttyS0:/dev/ttyS0 \
+  --device=/dev/ttyS0 \
   -p 4040:4040 \
   -p 4041:4041 \
   ros2-lawn-mower \

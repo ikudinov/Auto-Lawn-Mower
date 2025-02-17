@@ -27,6 +27,8 @@ def generate_launch_description():
             package='lawn_mower_web_controller',
             executable='web_node',
             name='webserver',
+            output='screen',
+            emulate_tty=True,
             parameters=[config]
         ),
     ])

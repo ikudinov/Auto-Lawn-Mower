@@ -38,7 +38,6 @@ class WsServer():
     )
     self.http_server = tornado.httpserver.HTTPServer(app)
     self.http_server.listen(port)
-    print('WS server started at port=%s' % port)
 
   def spin(self, callback):
     tornado.ioloop.PeriodicCallback(callback, 10).start()
@@ -54,8 +53,6 @@ class WsNode(Node):
       topic=MOTORS_TOPIC,
       callback=self.motors_subscriber_callback,
       qos_profile=1)
-
-    self.get_logger().info('WS Node started')
 
   def spin_callback(self):
     rclpy.spin_once(self)

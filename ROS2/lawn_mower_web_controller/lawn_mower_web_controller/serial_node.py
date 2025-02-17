@@ -70,16 +70,16 @@ class SerialPublisherNode(Node):
 
 
 def main(args=None):
-  try:
+  # try:
     rclpy.init(args=args)
 
     serial_publisher_node = SerialPublisherNode()
 
     rclpy.spin(serial_publisher_node)
-  except KeyboardInterrupt:
-    pass
-  except Exception as e:
-    print(e)
+  # except KeyboardInterrupt:
+    # pass
+  # except Exception as e:
+    # print(e)
 
 
 if __name__ == '__main__':
