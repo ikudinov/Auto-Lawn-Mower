@@ -21,7 +21,7 @@ class NonBlockingSerial():
   async def read_port_loop(self):
     self.loop = asyncio.get_running_loop()
     while True:
-      await asyncio.sleep(0.005) # 5ms
+      await asyncio.sleep(0.01) # 5ms
       line = self.serial_port.readline().decode().strip()
       if line:
         self.on_receive(line)
@@ -49,17 +49,19 @@ class SerialPublisherNode(Node):
 
     self.serial_port = NonBlockingSerial(serial_port_name, serial_port_baudrate, self.on_serial_data)
     self.serial_port.open()
-    self.get_logger().info('Serial Node started')
 
   def on_serial_data(self, msg):
     # self.get_logger().info(f"""Serial data: {msg}""")
 
-    obj = json.loads(msg)
-    msg_type = obj["type"]
-    msg_data = obj["data"]
+    try:
+      obj = json.loads(msg)
+      msg_type = obj["type"]
+      msg_data = obj["data"]
 
-    if (msg_type == "motors"):
-      self.publish_motor_data(msg_data)
+      if (msg_type == "motors"):
+        self.publish_motor_data(msg_data)
+    except Exception as e:
+      pass
 
   def publish_motor_data(self, data):
     motors = Motors()
@@ -70,16 +72,18 @@ class SerialPublisherNode(Node):
 
 
 def main(args=None):
-  # try:
+  try:
     rclpy.init(args=args)
 
     serial_publisher_node = SerialPublisherNode()
 
     rclpy.spin(serial_publisher_node)
-  # except KeyboardInterrupt:
-    # pass
-  # except Exception as e:
-    # print(e)
+
+    rclpy.shutdown()
+  except KeyboardInterrupt:
+    pass
+  except Exception as e:
+    print(e)
 
 
 if __name__ == '__main__':

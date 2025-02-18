@@ -2,21 +2,18 @@ from os import path
 from rclpy.executors import ExternalShutdownException
 import tornado.ioloop
 import tornado.web
+from ament_index_python.packages import get_package_share_directory
 
 
-WEB_SERVER_PORT = 4040
+WEB_SERVER_PORT = 80
 
 
 class WebServer():
   http_server = None
 
   def get_html_dir(self):
-    python_script_dir = path.dirname(path.realpath(__file__))
-    package_dir = path.dirname(python_script_dir)
-
-    print('%s/resource/html' % package_dir)
-
-    return '%s/resource/html' % package_dir
+    share_dir = get_package_share_directory('lawn_mower_web_controller')
+    return '%s/resource/html' % share_dir
 
   def run(self, port):
     app = tornado.web.Application([

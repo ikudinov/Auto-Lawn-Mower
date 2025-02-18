@@ -57,7 +57,7 @@
   min-width: var(--joystick-pointer-size);
   height: var(--joystick-pointer-size);
   min-height: var(--joystick-pointer-size);
-  transition: margin-bottom 50ms ease-in, margin-right 50ms ease-out;
+  transition: margin-bottom 100ms ease-in, margin-right 100ms ease-out;
   background-color: var(--control-panel-blue-fg);
   border: 6px #8badf5 solid;
   border-radius: 50%;
