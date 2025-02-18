@@ -1,6 +1,6 @@
 :root {
-  --joystick-size: 300px;
-  --joystick-pointer-size: 60px;
+  --joystick-size: 250px;
+  --joystick-pointer-size: 40px;
 
   --joystick-circle-size: calc(var(--joystick-size) - 2px);
   --joystick-circle-line-pos: calc(var(--joystick-size) / 2 + 10px);
@@ -57,7 +57,7 @@
   min-width: var(--joystick-pointer-size);
   height: var(--joystick-pointer-size);
   min-height: var(--joystick-pointer-size);
-  transition: margin-bottom 100ms ease-in, margin-right 100ms ease-out;
+  transition: margin-bottom 200ms linear, margin-right 200ms linear;
   background-color: var(--control-panel-blue-fg);
   border: 6px #8badf5 solid;
   border-radius: 50%;

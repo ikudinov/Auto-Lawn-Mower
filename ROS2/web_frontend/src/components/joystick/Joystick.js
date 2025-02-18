@@ -1,8 +1,8 @@
 import React from "react";
 import "./Joystick.css";
 
-const JOYSTICK_SIZE = 300;
-const JOYSTICK_POINTER_SIZE = 60;
+const JOYSTICK_SIZE = 250;
+const JOYSTICK_POINTER_SIZE = 40;
 
 export default function Joystick({ top, right }) {
   const marginBottom = ((JOYSTICK_SIZE - JOYSTICK_POINTER_SIZE) * top) / 200;
