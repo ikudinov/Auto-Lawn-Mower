@@ -14,6 +14,7 @@ setup(
         # Include launch files.
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.yaml'))),
+        (os.path.join('share', package_name, 'resource', 'html'), glob('resource/html/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

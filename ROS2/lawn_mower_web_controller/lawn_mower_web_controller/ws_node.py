@@ -14,13 +14,13 @@ ws_clients = set()
 
 class WsHandler(tornado.websocket.WebSocketHandler):
   def open(self, args):
+    print("Socket connected")
     ws_clients.add(self)
 
   def on_close(self):
     ws_clients.remove(self)
 
   def on_message(self, message):
-    print("WS message '%s'" % message)
     self.write_message(u"You said: " + message)
   
   def check_origin(self, origin):
@@ -38,7 +38,6 @@ class WsServer():
     )
     self.http_server = tornado.httpserver.HTTPServer(app)
     self.http_server.listen(port)
-    print('WS server started at port=%s' % port)
 
   def spin(self, callback):
     tornado.ioloop.PeriodicCallback(callback, 10).start()
@@ -55,10 +54,8 @@ class WsNode(Node):
       callback=self.motors_subscriber_callback,
       qos_profile=1)
 
-    self.get_logger().info('WS Node started')
-
   def spin_callback(self):
-    rclpy.spin_once(self)
+    rclpy.spin_once(node=self, timeout_sec=0)
 
   def motors_subscriber_callback(self, msg: Motors):
     # self.get_logger().info(f"""Motor msg left={msg.left} right={msg.right} trimmer={msg.trimmer}  """)

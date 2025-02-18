@@ -15,18 +15,24 @@ def generate_launch_description():
             package='lawn_mower_web_controller',
             executable='serial_node',
             name='serial',
+            output='screen',
+            emulate_tty=True,
             parameters=[config]
         ),
         Node(
             package='lawn_mower_web_controller',
             executable='ws_node',
             name='webscoket',
+            output='screen',
+            emulate_tty=True,
             parameters=[config]
         ),
         Node(
             package='lawn_mower_web_controller',
             executable='web_node',
             name='webserver',
+            output='screen',
+            emulate_tty=True,
             parameters=[config]
         ),
     ])

@@ -1,3 +1,7 @@
-docker rmi -f $(docker images | grep 'ros2-lawn-mower')
+sudo rm -rf ../build/
+sudo rm -rf ../install/
 
-docker build -t ros2-lawn-mower .
+docker run -it \
+  -v "${PWD}/../":/opt/auto-lawn-mower \
+  ros2-lawn-mower \
+  bash -c "colcon build"

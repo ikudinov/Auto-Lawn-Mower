@@ -13,7 +13,7 @@ async function onCacheEntryAdded(_, { updateCachedData, cacheEntryRemoved }) {
   let ws = null;
 
   try {
-    ws = new ReconnectingWebSocket("ws://localhost:4041");
+    ws = new ReconnectingWebSocket(`ws://${window.location.host}:4041`);
 
     ws.onmessage = (event) => {
       const motors = JSON.parse(event.data);
