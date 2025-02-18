@@ -1,7 +1,7 @@
 import React from "react";
 import "./PowerMeter.css";
 
-const BAR_HEIGHT = 400;
+const BAR_HEIGHT = 300;
 
 export default function PowerMeter({ label, value }) {
   const height = Math.abs((BAR_HEIGHT * value) / 200);

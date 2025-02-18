@@ -1,6 +1,6 @@
-B:root {
-  --power-meter-bar-width: 50px;
-  --power-meter-bar-height: 400px;
+:root {
+  --power-meter-bar-width: 40px;
+  --power-meter-bar-height: 300px;
 }
 
 .power-meter {
@@ -9,7 +9,7 @@ B:root {
   flex-direction: column;
   align-items: center;
   font-size: 16px;
-  width: 50px;
+  width: 40px;
 }
 
 .power-meter__label {
@@ -42,7 +42,7 @@ B:root {
   width: var(--power-meter-bar-width);
   background-color: var(--control-panel-blue-fg);
   margin-top: calc(var(--power-meter-bar-height) / 2);
-  transition: height 100ms ease-in, bottom 100ms ease-in;
+  transition: height 200ms linear, bottom 200ms linear;
   display: flex;
   align-items: center;
   justify-content: center;
