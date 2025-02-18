@@ -39,7 +39,7 @@ void prepareMotorsJson() {
  * @retval None
  */
 void StartOpiControlTask(void const *argument) {
-    const TickType_t xIntervalMs = 100;
+    const TickType_t xIntervalMs = 200;
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     for (;;) {
