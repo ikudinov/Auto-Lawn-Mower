@@ -5,16 +5,18 @@
  *      Author: ivankudinov
  */
 #include "cmsis_os.h"
+#include "math.h"
 
 #include "pid_task.h"
 #include "setup_queues.h"
 #include "rc_task.h"
 
-
 MotorPwm leftMotorControl = { STOP, 0 };
 MotorPwm rightMotorControl = { STOP, 0 };
-bool trimmerMotorEnabled = false;
 
+uint16_t TRIMMER_TIMER_STEP = 1500;
+bool trimmerMotorEnabled = false;
+uint16_t trimmerTimerCounter = 0;
 
 /**
  * @brief Write all PWM/GPIO values to HAL
@@ -26,35 +28,36 @@ void WriteMotorsHAL() {
     // Left motor
     timerValue = 65535 * leftMotorControl.percent / 100;
     if (leftMotorControl.direction == STOP) {
-        TIM1->CCR1 = 0;
-        TIM1->CCR2 = 0;
+        TIM1->CCR3 = 0;
+        TIM1->CCR4 = 0;
     }
     if (leftMotorControl.direction == FORWARD) {
-        TIM1->CCR1 = 0;
-        TIM1->CCR2 = timerValue;
+        TIM1->CCR3 = 0;
+        TIM1->CCR4 = timerValue;
     }
     if (leftMotorControl.direction == BACKWARD) {
-        TIM1->CCR2 = 0;
-        TIM1->CCR1 = timerValue;
+        TIM1->CCR3 = timerValue;
+        TIM1->CCR4 = 0;
     }
 
     // Right motor
     timerValue = 65535 * rightMotorControl.percent / 100;
     if (rightMotorControl.direction == STOP) {
-        TIM1->CCR3 = 0;
-        TIM1->CCR4 = 0;
+        TIM1->CCR1 = 0;
+        TIM1->CCR2 = 0;
     }
     if (rightMotorControl.direction == FORWARD) {
-        TIM1->CCR3 = 0;
-        TIM1->CCR4 = timerValue;
+        TIM1->CCR1 = 0;
+        TIM1->CCR2 = timerValue;
     }
     if (rightMotorControl.direction == BACKWARD) {
-        TIM1->CCR4 = 0;
-        TIM1->CCR3 = timerValue;
+        TIM1->CCR1 = timerValue;
+        TIM1->CCR2 = 0;
     }
 
     // Trimmer
-    TIM2->CCR1 = trimmerMotorEnabled ? 65535 : 0;
+    trimmerTimerCounter = trimmerMotorEnabled ? fmin(65535, trimmerTimerCounter + TRIMMER_TIMER_STEP) : 0;
+    TIM2->CCR1 = trimmerTimerCounter;
 }
 
 /**
@@ -86,7 +89,7 @@ void HandleRcControlMessage(osEvent event) {
         needWriteHal = true;
     }
 
-    if (trimmerMotorEnabled != message->trimmerMotor) {
+    if ((trimmerMotorEnabled != message->trimmerMotor) || (trimmerMotorEnabled && trimmerTimerCounter < 65535)) {
         trimmerMotorEnabled = message->trimmerMotor;
         needWriteHal = true;
     }
