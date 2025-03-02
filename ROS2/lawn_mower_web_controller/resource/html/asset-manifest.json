@@ -1,13 +1,23 @@
 {
   "files": {
-    "main.css": "/main.0fe557d0.css",
-    "main.js": "/main.0087b066.js",
+    "main.css": "/main.66f7c80b.css",
+    "main.js": "/main.680b9c50.js",
+    "material-icons-two-tone.woff": "/material-icons-two-tone.3baa5b8f3469222b822d.woff",
+    "material-icons-two-tone.woff2": "/material-icons-two-tone.4ef4218c522f1eb6b5b1.woff2",
+    "material-icons-round.woff": "/material-icons-round.5d681e2edae8c60630db.woff",
+    "material-icons-outlined.woff": "/material-icons-outlined.f882956fd323fd322f31.woff",
+    "material-icons-round.woff2": "/material-icons-round.c380809fd3677d7d6903.woff2",
+    "material-icons.woff": "/material-icons.4d73cb90e394b34b7670.woff",
+    "material-icons-sharp.woff": "/material-icons-sharp.3a4004a46a653d4b2166.woff",
+    "material-icons-outlined.woff2": "/material-icons-outlined.6f420cf17cc0d7676fad.woff2",
+    "material-icons-sharp.woff2": "/material-icons-sharp.219aa9140e099e6c72ed.woff2",
+    "material-icons.woff2": "/material-icons.0c35d18bf06992036b69.woff2",
     "index.html": "/index.html",
-    "main.0fe557d0.css.map": "/main.0fe557d0.css.map",
-    "main.0087b066.js.map": "/main.0087b066.js.map"
+    "main.66f7c80b.css.map": "/main.66f7c80b.css.map",
+    "main.680b9c50.js.map": "/main.680b9c50.js.map"
   },
   "entrypoints": [
-    "main.0fe557d0.css",
-    "main.0087b066.js"
+    "main.66f7c80b.css",
+    "main.680b9c50.js"
   ]
 }
