@@ -12,9 +12,9 @@
 #include "tasks_common.h"
 
 
-extern MotorPwm leftMotorControl;
-extern MotorPwm rightMotorControl;
-extern bool trimmerMotorEnabled;
+extern DriveMotor leftMotor;
+extern DriveMotor rightMotor;
+extern TrimmerMotor trimmerMotor;
 
 void StartPidTask(void const * argument);
 

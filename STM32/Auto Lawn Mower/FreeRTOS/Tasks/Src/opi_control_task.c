@@ -13,22 +13,22 @@
 
 
 extern UART_HandleTypeDef huart3;
-extern MotorPwm leftMotorControl;
-extern MotorPwm rightMotorControl;
-extern bool trimmerMotorEnabled;
+extern DriveMotor leftMotor;
+extern DriveMotor rightMotor;
+extern TrimmerMotor trimmerMotor;
 
 char message[64];
 
-int8_t getMotorValue(MotorPwm motor) {
+int8_t getMotorValue(DriveMotor motor) {
     if (motor.direction == FORWARD) return motor.percent;
     if (motor.direction == BACKWARD) return -motor.percent;
     return 0;
 }
 
 void prepareMotorsJson() {
-    const int8_t l = getMotorValue(leftMotorControl);
-    const int8_t r = getMotorValue(rightMotorControl);
-    const uint8_t t = trimmerMotorEnabled;
+    const int8_t l = getMotorValue(leftMotor);
+    const int8_t r = getMotorValue(rightMotor);
+    const uint8_t t = trimmerMotor.enabled;
 
     sprintf(message, "{\"type\":\"motors\",\"data\":{\"l\":%i,\"r\":%i,\"t\":%u}}\n", l, r, t);
 }

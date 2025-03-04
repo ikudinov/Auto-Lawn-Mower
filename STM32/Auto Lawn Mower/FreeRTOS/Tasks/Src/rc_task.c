@@ -21,9 +21,9 @@ typedef struct {
     uint32_t pwmImpulseArr[IMPULSE_ARR_LEN];
 } RcChannel;
 
-RcChannel leftMotor;
-RcChannel rightMotor;
-RcChannel trimmerMotor;
+RcChannel leftMotorChannel;
+RcChannel rightMotorChannel;
+RcChannel trimmerMotorChannel;
 
 
 /**
@@ -166,9 +166,9 @@ uint8_t CalcOnOff(RcChannel rcChannel) {
 void EXTI9_5_IRQHandler(void) {
     const uint32_t ts = DWT->CYCCNT;
 
-    HandleInterrupt(&leftMotor, MOTOR_LEFT_PIN, ts);
-    HandleInterrupt(&rightMotor, MOTOR_RIGHT_PIN, ts);
-    HandleInterrupt(&trimmerMotor, MOTOR_TRIMMER_PIN, ts);
+    HandleInterrupt(&leftMotorChannel, MOTOR_LEFT_PIN, ts);
+    HandleInterrupt(&rightMotorChannel, MOTOR_RIGHT_PIN, ts);
+    HandleInterrupt(&trimmerMotorChannel, MOTOR_TRIMMER_PIN, ts);
 }
 
 /**
@@ -181,17 +181,17 @@ void StartRcTask(void const *argument) {
     TickType_t xLastWakeTime = xTaskGetTickCount();
     RcControlMessage *message;
 
-    InitRcChannel(&leftMotor);
-    InitRcChannel(&rightMotor);
-    InitRcChannel(&trimmerMotor);
+    InitRcChannel(&leftMotorChannel);
+    InitRcChannel(&rightMotorChannel);
+    InitRcChannel(&trimmerMotorChannel);
 
     for (;;) {
         vTaskDelayUntil(&xLastWakeTime, xIntervalMs);
 
         message = osMailAlloc(rcControlQueueHandle, xIntervalMs);
-        message->trimmerMotor = CalcOnOff(trimmerMotor);
-        message->leftMotor = CalcPwmPercent(leftMotor);
-        message->rightMotor = CalcPwmPercent(rightMotor);
+        message->trimmerMotor = CalcOnOff(trimmerMotorChannel);
+        message->leftMotor = CalcPwmPercent(leftMotorChannel);
+        message->rightMotor = CalcPwmPercent(rightMotorChannel);
 
         if (osMailPut(rcControlQueueHandle, message) != osOK) {
             osMailFree(rcControlQueueHandle, message);
