@@ -9,40 +9,16 @@
 #include "pid_task.h"
 #include "setup_queues.h"
 #include "rc_task.h"
+#include "encoder_task.h"
 
+#define TASK_INTERVAL 25
 #define TRIMMER_TIMER_STEP 1500
+#define TRIMMER_DISABLE_DELAY 120 // 120 * 25ms = 3000ms
 #define MAX_TIMER_VALUE 65535
-#define PID_K_P 1.11
-#define PID_K_I 2.12
-#define PID_K_D 10.2
-#define PWM_TO_PULSE_KOEFF 123
 
 
 DriveMotor leftMotor, rightMotor;
 TrimmerMotor trimmerMotor = { 0, 0 };
-
-uint8_t CalcPidValue(DriveMotor * motor) {
-//    pwm * PWM_TO_PULSE_KOEFF;
-//
-//    double error, pTerm, iTerm, dTerm, pidValue;
-//    uint16_t setPulseFreq, pwmValue;
-//
-//    setPulseFreq = this->pwmToPulseFreq(setPwm);
-//    error = setPulseFreq - actualPulseFreq;
-//    this->errorTotal += error;
-//
-//    pTerm = (double)(this->Kp * error);
-//    iTerm = (double)(this->Ki * this->errorTotal);
-//    dTerm = (double)(this->Kd * (error - this->errorPrev));
-//    pidValue = pTerm + iTerm + dTerm;
-//    this->errorPrev = error;
-//
-//    // Limit output between  MIN_PWM & MAX_PWM
-//    pwmValue = fmax(MIN_PWM, fmin(MAX_PWM, pidValue));
-
-
-    return 0;
-}
 
 /**
  * @brief
@@ -105,18 +81,32 @@ void HandleRcControlMessage(osEvent event) {
 }
 
 /**
- *
+ * @brief Motor overload event
+ * @param event: OS Main Event data
+ * @retval None
+ */
+void HandleOverloadMessage(osEvent event) {
+    RcControlMessage *message = (RcControlMessage*) event.value.p;
+
+    HandleDriveMotorRcMessage(&leftMotor, &message->leftMotor);
+    HandleDriveMotorRcMessage(&rightMotor, &message->rightMotor);
+    HandleTrimmerMotorRcMessage(&trimmerMotor, message->trimmerMotor);
+
+    osMailFree(rcControlQueueHandle, message);
+}
+
+/**
+ * @brief Motor register initialization
+ * @param motor: Drive motor structure
+ * @param ccrFwd: Forward PWM GPIO
+ * @param ccrBack: Backward PWM GPIO
+ * @retval None
  */
 void InitMotor(DriveMotor *motor, volatile uint32_t *ccrFwd, volatile uint32_t *ccrBack) {
     motor->timerCcrFwd = ccrFwd;
     motor->timerCcrBack = ccrBack;
     motor->direction = STOP;
     motor->percent = 0;
-    motor->pid.Kp = PID_K_P;
-    motor->pid.Ki = PID_K_I;
-    motor->pid.Kd = PID_K_D;
-    motor->pid.errorPrev = 0;
-    motor->pid.errorTotal = 0;
 }
 
 /**
@@ -125,7 +115,7 @@ void InitMotor(DriveMotor *motor, volatile uint32_t *ccrFwd, volatile uint32_t *
  * @retval None
  */
 void StartPidTask(void const *argument) {
-    const TickType_t xIntervalMs = 25;
+    const TickType_t xIntervalMs = TASK_INTERVAL;
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     InitMotor(&leftMotor, &TIM1->CCR3, &TIM1->CCR4);
@@ -138,6 +128,12 @@ void StartPidTask(void const *argument) {
         osEvent rcControlEvent = osMailGet(rcControlQueueHandle, 1);
         if (rcControlEvent.status == osEventMail) {
             HandleRcControlMessage(rcControlEvent);
+        }
+
+        // Try to get RC control message
+        osEvent overloadEvent = osMailGet(overloadQueueHandle, 1);
+        if (rcControlEvent.status == osEventMail) {
+            HandleOverloadMessage(overloadEvent);
         }
     }
 }

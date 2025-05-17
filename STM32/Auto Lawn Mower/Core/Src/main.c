@@ -75,10 +75,9 @@ int main(void) {
  * @brief SWO debug printf override
  */
 int __io_putchar(int ch) {
-  ITM_SendChar(ch);
-  return ch;
+    ITM_SendChar(ch);
+    return ch;
 }
-
 
 /**
  * @brief System Clock Configuration
@@ -303,20 +302,19 @@ static void MX_USART3_UART_Init(void) {
 }
 
 /**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void) {
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA1_CLK_ENABLE();
 
-  /* DMA interrupt init */
-  /* DMA1_Channel2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-  /* DMA1_Channel3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
+    /* DMA interrupt init */
+    /* DMA1_Channel2_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+    /* DMA1_Channel3_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
 }
 

@@ -7,24 +7,19 @@
 #include "math.h"
 #include "stdio.h"
 #include "cmsis_os.h"
-
 #include "rc_task.h"
 #include "setup_queues.h"
 
+#define TASK_INTERVAL 50
+#define MOTOR_PORT GPIOB
+#define MOTOR_LEFT_PIN GPIO_PIN_7
+#define MOTOR_RIGHT_PIN GPIO_PIN_8
+#define MOTOR_TRIMMER_PIN GPIO_PIN_9
 
-#define IMPULSE_ARR_LEN 6
-
-typedef struct {
-    GPIO_PinState pinState;
-    uint32_t highIntTs; // Cycle time last interrupt low -> high
-    uint8_t pwmImpulseIdx;
-    uint32_t pwmImpulseArr[IMPULSE_ARR_LEN];
-} RcChannel;
 
 RcChannel leftMotorChannel;
 RcChannel rightMotorChannel;
 RcChannel trimmerMotorChannel;
-
 
 /**
  * @brief  Fill RC channel struct with initial values
@@ -177,7 +172,7 @@ void EXTI9_5_IRQHandler(void) {
  * @retval None
  */
 void StartRcTask(void const *argument) {
-    const TickType_t xIntervalMs = 50;
+    const TickType_t xIntervalMs = TASK_INTERVAL;
     TickType_t xLastWakeTime = xTaskGetTickCount();
     RcControlMessage *message;
 

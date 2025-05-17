@@ -23,24 +23,16 @@ typedef struct {
 } MotorPwm;
 
 typedef struct {
-    float Kp;
-    float Ki;
-    float Kd;
-    double errorTotal;
-    double errorPrev;
-} PID;
-
-typedef struct {
     Direction direction;
     uint8_t percent;
     volatile uint32_t * timerCcrFwd;
     volatile uint32_t * timerCcrBack;
-    PID pid;
 } DriveMotor;
 
 typedef struct {
     bool enabled;
     uint16_t timerCounter;
+    uint32_t disableCounter;
 } TrimmerMotor;
 
 #endif /* TASKS_INC_TASKS_COMMON_H_ */
