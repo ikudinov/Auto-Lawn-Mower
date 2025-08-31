@@ -8,6 +8,8 @@
 #ifndef TASKS_INC_TASKS_COMMON_H_
 #define TASKS_INC_TASKS_COMMON_H_
 
+#include "stdbool.h"
+
 typedef enum
 {
     STOP = 0,
@@ -19,5 +21,18 @@ typedef struct {
     Direction direction;
     uint8_t percent;
 } MotorPwm;
+
+typedef struct {
+    Direction direction;
+    uint8_t percent;
+    volatile uint32_t * timerCcrFwd;
+    volatile uint32_t * timerCcrBack;
+} DriveMotor;
+
+typedef struct {
+    bool enabled;
+    uint16_t timerCounter;
+    uint32_t disableCounter;
+} TrimmerMotor;
 
 #endif /* TASKS_INC_TASKS_COMMON_H_ */

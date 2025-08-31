@@ -75,10 +75,9 @@ int main(void) {
  * @brief SWO debug printf override
  */
 int __io_putchar(int ch) {
-  ITM_SendChar(ch);
-  return ch;
+    ITM_SendChar(ch);
+    return ch;
 }
-
 
 /**
  * @brief System Clock Configuration
@@ -147,22 +146,6 @@ static void MX_ADC1_Init(void) {
     sConfig.Channel = ADC_CHANNEL_4;
     sConfig.Rank = ADC_REGULAR_RANK_1;
     sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
-        Error_Handler();
-    }
-
-    /** Configure Regular Channel
-     */
-    sConfig.Channel = ADC_CHANNEL_5;
-    sConfig.Rank = ADC_REGULAR_RANK_2;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
-        Error_Handler();
-    }
-
-    /** Configure Regular Channel
-     */
-    sConfig.Channel = ADC_CHANNEL_6;
-    sConfig.Rank = ADC_REGULAR_RANK_3;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
         Error_Handler();
     }
@@ -303,20 +286,19 @@ static void MX_USART3_UART_Init(void) {
 }
 
 /**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void) {
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA1_CLK_ENABLE();
 
-  /* DMA interrupt init */
-  /* DMA1_Channel2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-  /* DMA1_Channel3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
+    /* DMA interrupt init */
+    /* DMA1_Channel2_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+    /* DMA1_Channel3_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
 
 }
 

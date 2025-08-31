@@ -13,8 +13,7 @@
 #define QUEUE_SEND_TIMEOUT 200
 
 extern osMailQId rcControlQueueHandle;
-extern osMailQId encoderQueueHandle;
-extern osMailQId motorCurrQueueHandle;
+extern osMailQId overloadQueueHandle;
 
 void vSetupAllQueues();
 

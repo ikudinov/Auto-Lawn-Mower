@@ -7,24 +7,19 @@
 #include "math.h"
 #include "stdio.h"
 #include "cmsis_os.h"
-
 #include "rc_task.h"
 #include "setup_queues.h"
 
+#define TASK_INTERVAL 50
+#define MOTOR_PORT GPIOB
+#define MOTOR_LEFT_PIN GPIO_PIN_7
+#define MOTOR_RIGHT_PIN GPIO_PIN_8
+#define MOTOR_TRIMMER_PIN GPIO_PIN_9
 
-#define IMPULSE_ARR_LEN 6
 
-typedef struct {
-    GPIO_PinState pinState;
-    uint32_t highIntTs; // Cycle time last interrupt low -> high
-    uint8_t pwmImpulseIdx;
-    uint32_t pwmImpulseArr[IMPULSE_ARR_LEN];
-} RcChannel;
-
-RcChannel leftMotor;
-RcChannel rightMotor;
-RcChannel trimmerMotor;
-
+RcChannel leftMotorChannel;
+RcChannel rightMotorChannel;
+RcChannel trimmerMotorChannel;
 
 /**
  * @brief  Fill RC channel struct with initial values
@@ -166,9 +161,9 @@ uint8_t CalcOnOff(RcChannel rcChannel) {
 void EXTI9_5_IRQHandler(void) {
     const uint32_t ts = DWT->CYCCNT;
 
-    HandleInterrupt(&leftMotor, MOTOR_LEFT_PIN, ts);
-    HandleInterrupt(&rightMotor, MOTOR_RIGHT_PIN, ts);
-    HandleInterrupt(&trimmerMotor, MOTOR_TRIMMER_PIN, ts);
+    HandleInterrupt(&leftMotorChannel, MOTOR_LEFT_PIN, ts);
+    HandleInterrupt(&rightMotorChannel, MOTOR_RIGHT_PIN, ts);
+    HandleInterrupt(&trimmerMotorChannel, MOTOR_TRIMMER_PIN, ts);
 }
 
 /**
@@ -177,21 +172,21 @@ void EXTI9_5_IRQHandler(void) {
  * @retval None
  */
 void StartRcTask(void const *argument) {
-    const TickType_t xIntervalMs = 50;
+    const TickType_t xIntervalMs = TASK_INTERVAL;
     TickType_t xLastWakeTime = xTaskGetTickCount();
     RcControlMessage *message;
 
-    InitRcChannel(&leftMotor);
-    InitRcChannel(&rightMotor);
-    InitRcChannel(&trimmerMotor);
+    InitRcChannel(&leftMotorChannel);
+    InitRcChannel(&rightMotorChannel);
+    InitRcChannel(&trimmerMotorChannel);
 
     for (;;) {
         vTaskDelayUntil(&xLastWakeTime, xIntervalMs);
 
         message = osMailAlloc(rcControlQueueHandle, xIntervalMs);
-        message->trimmerMotor = CalcOnOff(trimmerMotor);
-        message->leftMotor = CalcPwmPercent(leftMotor);
-        message->rightMotor = CalcPwmPercent(rightMotor);
+        message->trimmerMotor = CalcOnOff(trimmerMotorChannel);
+        message->leftMotor = CalcPwmPercent(leftMotorChannel);
+        message->rightMotor = CalcPwmPercent(rightMotorChannel);
 
         if (osMailPut(rcControlQueueHandle, message) != osOK) {
             osMailFree(rcControlQueueHandle, message);

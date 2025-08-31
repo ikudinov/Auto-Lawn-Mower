@@ -8,6 +8,13 @@
 #ifndef TASKS_INC_OVERLOAD_TASK_H_
 #define TASKS_INC_OVERLOAD_TASK_H_
 
+#include "stdint.h"
+
+typedef struct {
+    uint8_t leftMotorOverload;
+    uint8_t rightMotorOverload;
+    uint8_t trimmerMotorOverload;
+} OverloadMessage;
 
 void StartOverloadTask(void const * argument);
 

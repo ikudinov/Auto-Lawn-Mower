@@ -11,11 +11,7 @@
 #include "stm32f1xx_hal.h"
 #include "tasks_common.h"
 
-
-#define MOTOR_PORT GPIOB
-#define MOTOR_LEFT_PIN GPIO_PIN_7
-#define MOTOR_RIGHT_PIN GPIO_PIN_8
-#define MOTOR_TRIMMER_PIN GPIO_PIN_9
+#define IMPULSE_ARR_LEN 6
 
 typedef struct {
     MotorPwm leftMotor;
@@ -23,6 +19,12 @@ typedef struct {
     uint8_t trimmerMotor;
 } RcControlMessage;
 
+typedef struct {
+    GPIO_PinState pinState;
+    uint32_t highIntTs; // Cycle time last interrupt low -> high
+    uint8_t pwmImpulseIdx;
+    uint32_t pwmImpulseArr[IMPULSE_ARR_LEN];
+} RcChannel;
 
 void StartRcTask(void const * argument);
 
