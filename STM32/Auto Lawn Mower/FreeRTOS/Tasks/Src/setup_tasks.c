@@ -8,7 +8,6 @@
 
 #include "setup_tasks.h"
 #include "encoder_task.h"
-#include "gps_task.h"
 #include "opi_control_task.h"
 #include "overload_task.h"
 #include "pid_task.h"
@@ -19,7 +18,6 @@
 osThreadId overloadTaskHandle;
 osThreadId encoderTaskHandle;
 osThreadId pidTaskHandle;
-osThreadId gpsTaskHandle;
 osThreadId sendStatusTaskHandle;
 osThreadId opiControlTaskHandle;
 osThreadId rcTaskHandle;
@@ -35,9 +33,6 @@ void vSetupAllTasks()
 
 	osThreadDef(pidTask, StartPidTask, osPriorityNormal, 0, 128);
 	pidTaskHandle = osThreadCreate(osThread(pidTask), NULL);
-
-	osThreadDef(gpsTask, StartGpsTask, osPriorityNormal, 0, 128);
-	gpsTaskHandle = osThreadCreate(osThread(gpsTask), NULL);
 
 	osThreadDef(sendStatusTask, StartSendStatusTask, osPriorityNormal, 0, 128);
 	sendStatusTaskHandle = osThreadCreate(osThread(sendStatusTask), NULL);

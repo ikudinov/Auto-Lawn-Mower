@@ -23,14 +23,14 @@ void reset(uint16_t pinNum) {
 }
 
 /**
- *
+ * Interrupt
  */
 void EXTI0_IRQHandler(void) {
     reset(LEFT_ENCODER_PIN);
 }
 
 /**
- *
+ * Interrupt
  */
 void EXTI1_IRQHandler(void) {
     reset(RIGHT_ENCODER_PIN);

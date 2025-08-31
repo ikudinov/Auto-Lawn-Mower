@@ -10,15 +10,17 @@
 #include "setup_queues.h"
 #include "rc_task.h"
 #include "encoder_task.h"
+#include "overload_task.h"
 
 #define TASK_INTERVAL 25
-#define TRIMMER_TIMER_STEP 1500
-#define TRIMMER_DISABLE_DELAY 120 // 120 * 25ms = 3000ms
+#define TRIMMER_TIMER_STEP 3000
+#define TRIMMER_DISABLE_DELAY 40 // 40 * 25ms = 1000ms
+#define TRIMMER_GPIO_REG TIM2->CCR1
 #define MAX_TIMER_VALUE 65535
 
 
 DriveMotor leftMotor, rightMotor;
-TrimmerMotor trimmerMotor = { 0, 0 };
+TrimmerMotor trimmerMotor = { 0, 0, 0 };
 
 /**
  * @brief
@@ -59,10 +61,16 @@ void HandleTrimmerMotorRcMessage(TrimmerMotor *motor, bool enabled) {
     needWriteHal = motor->enabled != enabled || (enabled && motor->timerCounter < MAX_TIMER_VALUE);
     if (!needWriteHal) return;
 
+    // Delay after trimmer overload
+    if (motor->disableCounter > 0 && enabled) {
+        motor->disableCounter--;
+        return;
+    }
+
     motor->enabled = enabled;
     motor->timerCounter = enabled ? fmin(MAX_TIMER_VALUE, motor->timerCounter + TRIMMER_TIMER_STEP) : 0;
 
-    TIM2->CCR1 = motor->timerCounter;
+    TRIMMER_GPIO_REG = motor->timerCounter;
 }
 
 /**
@@ -86,13 +94,17 @@ void HandleRcControlMessage(osEvent event) {
  * @retval None
  */
 void HandleOverloadMessage(osEvent event) {
-    RcControlMessage *message = (RcControlMessage*) event.value.p;
+    OverloadMessage *message = (OverloadMessage*) event.value.p;
 
-    HandleDriveMotorRcMessage(&leftMotor, &message->leftMotor);
-    HandleDriveMotorRcMessage(&rightMotor, &message->rightMotor);
-    HandleTrimmerMotorRcMessage(&trimmerMotor, message->trimmerMotor);
+    // Trimmer OFF
+    if (message->trimmerMotorOverload && trimmerMotor.enabled && trimmerMotor.timerCounter >= MAX_TIMER_VALUE) {
+        trimmerMotor.enabled = false;
+        trimmerMotor.disableCounter = TRIMMER_DISABLE_DELAY;
+        trimmerMotor.timerCounter = 0;
+        TRIMMER_GPIO_REG = 0;
+    }
 
-    osMailFree(rcControlQueueHandle, message);
+    osMailFree(overloadQueueHandle, message);
 }
 
 /**
@@ -125,14 +137,14 @@ void StartPidTask(void const *argument) {
         vTaskDelayUntil(&xLastWakeTime, xIntervalMs);
 
         // Try to get RC control message
-        osEvent rcControlEvent = osMailGet(rcControlQueueHandle, 1);
+        osEvent rcControlEvent = osMailGet(rcControlQueueHandle, 0);
         if (rcControlEvent.status == osEventMail) {
             HandleRcControlMessage(rcControlEvent);
         }
 
         // Try to get RC control message
-        osEvent overloadEvent = osMailGet(overloadQueueHandle, 1);
-        if (rcControlEvent.status == osEventMail) {
+        osEvent overloadEvent = osMailGet(overloadQueueHandle, 0);
+        if (overloadEvent.status == osEventMail) {
             HandleOverloadMessage(overloadEvent);
         }
     }
